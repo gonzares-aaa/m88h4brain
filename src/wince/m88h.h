@@ -93,18 +93,38 @@ public:
 private:
 	DWORD m_dwLockKeyFlag;
 
+	bool m_bUseRomaji; // メニューから設定するローマ字ON/OFFフラグ
+	bool m_bModifierMode; // 文字切替キーが押されているかどうかの状態フラグ
+
 	static bool m_blUseArrowFor10;
 	static KEYPUSHINFO m_aaKeyPushInfo[][4];
+
+	KEYPUSHINFO (*m_mapA)[4]; // 通常(QWERTY)
+	KEYPUSHINFO (*m_mapB)[4]; // 数字・記号 (メインキー)
+	KEYPUSHINFO (*m_mapC)[4]; // 数字・記号 (テンキー化)
+
+	// 状態に応じてマップを流し込む関数
+	void UpdateKeyMap();
 
 public:
 
 	HpcKeyIF();
 	~HpcKeyIF();
 
+	// ローマ字モードの取得とトグル(反転)
+	bool IsRomajiMode() { return m_bUseRomaji; }
+	void ToggleRomajiMode() { m_bUseRomaji = !m_bUseRomaji; }
+
+	// カナロック状態を取得
+	bool IsKanaLocked() { return (m_dwLockKeyFlag & HPCKEYIF_LOCK_KANA) != 0; }
+
 	static void SetUseArrowFor10Flag( bool blUseArrowFor10 );
 
 	void KeyUp( uint uiVkCode, uint32 uiKeyData );
 	void KeyDown( uint uiVkCode, uint32 uiKeyData );
+	
+	// OSのタイマーから呼ばれる関数
+	void OnTimer();
 };
 
 
@@ -293,6 +313,10 @@ private:
 	HWND m_hWndCB;
 	HMENU m_hMenu;
 	int m_iPrevBasicModeMenu;
+
+	// Mute Sound
+	DWORD mute_before_vol;	// Mute前のボリューム
+	bool isMute;			// Muteしていればtrue
 
 	CDiskImageManager *m_pDiskImgMgr;
 

@@ -7,7 +7,7 @@
 ===========================================================================*/
 
 #include "m88h.h"
-
+#include "romaji.h"
 
 using namespace PC8801;
 
@@ -36,6 +36,94 @@ HpcKeyIF::HpcKeyIF()
 	: WCEKeyIF()
 {
 	m_dwLockKeyFlag = 0;
+	m_bUseRomaji = true;
+	m_bModifierMode = false;
+
+	m_mapA = new KEYPUSHINFO[256][4];
+	m_mapB = new KEYPUSHINFO[256][4];
+	m_mapC = new KEYPUSHINFO[256][4];
+
+	// サイズ計算用
+	int mapSize = 256 * 4 * sizeof(KEYPUSHINFO);
+
+	
+	// ==============================================================
+	// マップキャッシュの初期化 (起動時に1回だけ生成)
+	// ==============================================================
+	
+	// 1. マップA (通常マップの保存)
+	// ※ sizeof(m_mapA) だとポインタのサイズ(4バイト)になってしまうため mapSize を使います
+	memcpy(m_mapA, m_aaKeyPushInfo, mapSize);
+
+	// 2. マップB (マップAをベースに、メインキーの数字・記号を作成)
+	memcpy(m_mapB, m_mapA, mapSize);
+	// E -> 3
+	m_mapB[0x45][0].uiPort = 0x06; m_mapB[0x45][0].uiSwitchBit = 3; m_mapB[0x45][0].uiSwitchBitPattern = 8;
+	// I -> 8
+	m_mapB[0x49][0].uiPort = 0x07; m_mapB[0x49][0].uiSwitchBit = 0; m_mapB[0x49][0].uiSwitchBitPattern = 1;
+	// O -> 9
+	m_mapB[0x4f][0].uiPort = 0x07; m_mapB[0x4f][0].uiSwitchBit = 1; m_mapB[0x4f][0].uiSwitchBitPattern = 2;
+	// P -> 0
+	m_mapB[0x50][0].uiPort = 0x06; m_mapB[0x50][0].uiSwitchBit = 0; m_mapB[0x50][0].uiSwitchBitPattern = 1;
+	// Q -> 1
+	m_mapB[0x51][0].uiPort = 0x06; m_mapB[0x51][0].uiSwitchBit = 1; m_mapB[0x51][0].uiSwitchBitPattern = 2;
+	// R -> 4
+	m_mapB[0x52][0].uiPort = 0x06; m_mapB[0x52][0].uiSwitchBit = 4; m_mapB[0x52][0].uiSwitchBitPattern = 16;
+	// T -> 5
+	m_mapB[0x54][0].uiPort = 0x06; m_mapB[0x54][0].uiSwitchBit = 5; m_mapB[0x54][0].uiSwitchBitPattern = 32;
+	// U -> 7
+	m_mapB[0x55][0].uiPort = 0x06; m_mapB[0x55][0].uiSwitchBit = 7; m_mapB[0x55][0].uiSwitchBitPattern = 128;
+	// W -> 2
+	m_mapB[0x57][0].uiPort = 0x06; m_mapB[0x57][0].uiSwitchBit = 2; m_mapB[0x57][0].uiSwitchBitPattern = 4;
+	// Y -> 6
+	m_mapB[0x59][0].uiPort = 0x06; m_mapB[0x59][0].uiSwitchBit = 6; m_mapB[0x59][0].uiSwitchBitPattern = 64;
+
+	// D -> ^
+	m_mapB[0x44][0].uiPort = 0x05; m_mapB[0x44][0].uiSwitchBit = 6; m_mapB[0x44][0].uiSwitchBitPattern = 64;
+	// F -> '\'
+	m_mapB[0x46][0].uiPort = 0x05; m_mapB[0x46][0].uiSwitchBit = 4; m_mapB[0x46][0].uiSwitchBitPattern = 16;
+	// G -> @
+	m_mapB[0x47][0].uiPort = 0x02; m_mapB[0x47][0].uiSwitchBit = 0; m_mapB[0x47][0].uiSwitchBitPattern = 1;
+	// H -> [
+	m_mapB[0x48][0].uiPort = 0x05; m_mapB[0x48][0].uiSwitchBit = 3; m_mapB[0x48][0].uiSwitchBitPattern = 8;
+	// J -> ;
+	m_mapB[0x4a][0].uiPort = 0x07; m_mapB[0x4a][0].uiSwitchBit = 3; m_mapB[0x4a][0].uiSwitchBitPattern = 8;
+	// K -> :
+	m_mapB[0x4b][0].uiPort = 0x07; m_mapB[0x4b][0].uiSwitchBit = 2; m_mapB[0x4b][0].uiSwitchBitPattern = 4;
+	// L -> ]
+	m_mapB[0x4c][0].uiPort = 0x05; m_mapB[0x4c][0].uiSwitchBit = 5; m_mapB[0x4c][0].uiSwitchBitPattern = 32;
+
+	// V -> ,
+	m_mapB[0x56][0].uiPort = 0x07; m_mapB[0x56][0].uiSwitchBit = 4; m_mapB[0x56][0].uiSwitchBitPattern = 16;
+	// B -> .
+	m_mapB[0x42][0].uiPort = 0x07; m_mapB[0x42][0].uiSwitchBit = 5; m_mapB[0x42][0].uiSwitchBitPattern = 32;
+	// N -> /
+	m_mapB[0x4e][0].uiPort = 0x07; m_mapB[0x4e][0].uiSwitchBit = 6; m_mapB[0x4e][0].uiSwitchBitPattern = 64;
+	// M -> _
+	m_mapB[0x4d][0].uiPort = 0x07; m_mapB[0x4d][0].uiSwitchBit = 7; m_mapB[0x4d][0].uiSwitchBitPattern = 128;
+
+	// 3. マップC (マップBをベースに、QWERTYUIOPの段だけをテンキー化)
+	memcpy(m_mapC, m_mapB, mapSize);
+	// Q -> テンキー 1 (Port0, Bit1)
+	m_mapC[0x51][0].uiPort = 0x00; m_mapC[0x51][0].uiSwitchBit = 1; m_mapC[0x51][0].uiSwitchBitPattern = 2;
+	// W -> テンキー 2 (Port0, Bit2)
+	m_mapC[0x57][0].uiPort = 0x00; m_mapC[0x57][0].uiSwitchBit = 2; m_mapC[0x57][0].uiSwitchBitPattern = 4;
+	// E -> テンキー 3 (Port0, Bit3)
+	m_mapC[0x45][0].uiPort = 0x00; m_mapC[0x45][0].uiSwitchBit = 3; m_mapC[0x45][0].uiSwitchBitPattern = 8;
+	// R -> テンキー 4 (Port0, Bit4)
+	m_mapC[0x52][0].uiPort = 0x00; m_mapC[0x52][0].uiSwitchBit = 4; m_mapC[0x52][0].uiSwitchBitPattern = 16;
+	// T -> テンキー 5 (Port0, Bit5)
+	m_mapC[0x54][0].uiPort = 0x00; m_mapC[0x54][0].uiSwitchBit = 5; m_mapC[0x54][0].uiSwitchBitPattern = 32;
+	// Y -> テンキー 6 (Port0, Bit6)
+	m_mapC[0x59][0].uiPort = 0x00; m_mapC[0x59][0].uiSwitchBit = 6; m_mapC[0x59][0].uiSwitchBitPattern = 64;
+	// U -> テンキー 7 (Port0, Bit7)
+	m_mapC[0x55][0].uiPort = 0x00; m_mapC[0x55][0].uiSwitchBit = 7; m_mapC[0x55][0].uiSwitchBitPattern = 128;
+	// I -> テンキー 8 (Port1, Bit0)
+	m_mapC[0x49][0].uiPort = 0x01; m_mapC[0x49][0].uiSwitchBit = 0; m_mapC[0x49][0].uiSwitchBitPattern = 1;
+	// O -> テンキー 9 (Port1, Bit1)
+	m_mapC[0x4f][0].uiPort = 0x01; m_mapC[0x4f][0].uiSwitchBit = 1; m_mapC[0x4f][0].uiSwitchBitPattern = 2;
+	// P -> テンキー 0 (Port0, Bit0)
+	m_mapC[0x50][0].uiPort = 0x00; m_mapC[0x50][0].uiSwitchBit = 0; m_mapC[0x50][0].uiSwitchBitPattern = 1;
 }
 
 
@@ -45,9 +133,32 @@ HpcKeyIF::HpcKeyIF()
 
 HpcKeyIF::~HpcKeyIF()
 {
+	delete[] m_mapA;
+	delete[] m_mapB;
+	delete[] m_mapC;
 }
 
+/*---------------------------------------------------------------------------
+		マップの再適用処理 (カナキーや文字切替キーが押された時に呼ぶ)
+---------------------------------------------------------------------------*/
+void HpcKeyIF::UpdateKeyMap()
+{
+	int mapSize = 256 * 4 * sizeof(KEYPUSHINFO);
 
+	if (!m_bModifierMode) {
+		// 文字切替OFFなら常に「マップA」
+		memcpy(m_aaKeyPushInfo, m_mapA, mapSize);
+	} else {
+		// 文字切替ONの場合、状態に応じてBかCを分ける
+		if (m_bUseRomaji && (m_dwLockKeyFlag & HPCKEYIF_LOCK_KANA)) {
+			// ローマ字ON かつ カナモード中 -> 「マップC」(テンキー)
+			memcpy(m_aaKeyPushInfo, m_mapC, mapSize);
+		} else {
+			// それ以外 -> 「マップB」(メインキー)
+			memcpy(m_aaKeyPushInfo, m_mapB, mapSize);
+		}
+	}
+}
 /*---------------------------------------------------------------------------
 		キー上げ
 ---------------------------------------------------------------------------*/
@@ -56,7 +167,8 @@ void HpcKeyIF::KeyUp( uint uiVkCode, uint32 uiKeyData )
 {
 KEYPUSHINFO *pKeyPush = m_aaKeyPushInfo[uiVkCode & 0xff];
 
-	if (uiVkCode == 0xf0)
+//	if (uiVkCode == 0xf0)
+	if (uiVkCode == 0x79)	// 0x79=HOMEキー でCAPSLOCK
 	{
 		if ((m_dwLockKeyFlag & HPCKEYIF_LOCK_CAPS) == 0)
 		{
@@ -65,14 +177,27 @@ KEYPUSHINFO *pKeyPush = m_aaKeyPushInfo[uiVkCode & 0xff];
 		}
 		m_dwLockKeyFlag &= ~HPCKEYIF_LOCK_CAPS;
 	}
-	if (uiVkCode == 0xf2)
+//	if (uiVkCode == 0xf2)
+	if (uiVkCode == 0x7b)	// 0x7b=記号キー でカナ
 	{
 		if ((m_dwLockKeyFlag & HPCKEYIF_LOCK_KANA) == 0)
 		{
 			m_dwLockKeyFlag |= HPCKEYIF_LOCK_KANA;
+			// ★カナモードに入るとき、ローマ字バッファをクリアして状態をリセットする
+			if (m_bUseRomaji) romaji_clear((void*)this);
+			UpdateKeyMap(); // カナONでマップが変わる可能性があるので更新
 			return;
 		}
 		m_dwLockKeyFlag &= ~HPCKEYIF_LOCK_KANA;
+		// ★カナモードを抜けるときもクリア（出力中の仮想キーを離上させるため）
+		if (m_bUseRomaji) romaji_clear((void*)this);
+		UpdateKeyMap(); // カナOFFでも更新
+	}
+
+	if (uiVkCode == 0x7a)	// 0x7a=文字切替キー
+	{
+		m_bModifierMode = !m_bModifierMode;
+		UpdateKeyMap(); // 文字切替のトグルに応じて更新
 	}
 
 	for( int i = 0; i < 4 && pKeyPush->uiPort < 0x100; i++ )
@@ -97,15 +222,40 @@ KEYPUSHINFO *pKeyPush = m_aaKeyPushInfo[uiVkCode & 0xff];
 		return;
 	}
 
-	if (uiVkCode == 0xf0 && (m_dwLockKeyFlag & HPCKEYIF_LOCK_CAPS))
+//	if (uiVkCode == 0xf0 && (m_dwLockKeyFlag & HPCKEYIF_LOCK_CAPS))
+	if (uiVkCode == 0x79 && (m_dwLockKeyFlag & HPCKEYIF_LOCK_CAPS))	// 0x79=HOMEキー でCAPSLOCK
 	{
 		return;
 	}
-	if (uiVkCode == 0xf2 && (m_dwLockKeyFlag & HPCKEYIF_LOCK_KANA))
+//	if (uiVkCode == 0xf2 && (m_dwLockKeyFlag & HPCKEYIF_LOCK_KANA))
+	if (uiVkCode == 0x7b && (m_dwLockKeyFlag & HPCKEYIF_LOCK_KANA))	// 0x7b=記号キー でカナ
 	{
 		return;
 	}
 
+	// ローマ字入力モード時のインターセプト処理
+	// 文字切替キーが押されていない(マップAの)時だけローマ字インターセプト
+	if ((m_dwLockKeyFlag & HPCKEYIF_LOCK_KANA) && m_bUseRomaji && !m_bModifierMode) {
+		int ascii = 0;
+		// A-ZのVKコード(0x41-0x5A)はASCIIコードと一致する
+		if (uiVkCode >= 0x41 && uiVkCode <= 0x5a) {
+			ascii = uiVkCode;
+		} else if (uiVkCode == 0xbd) {
+			ascii = '-'; // ハイフン（長音など）
+		} else if (uiVkCode == 0x20) {
+			ascii = ' '; // スペース
+		}
+		// Brainのキーボード仕様に合わせて、カンマやピリオドが必要ならここにelse ifを追加
+
+		if (ascii != 0) {
+			// romaji_input が 0 を返せば、ローマ字バッファに吸収されたということ
+			// 実機のエミュレータ側にはキーダウンイベントを流さずにリターンする
+			if (romaji_input(ascii, (void*)this) == 0) {
+				return; // QUASI88に吸収されたのでPC-88本体にはイベントを流さない
+			}
+		}
+	}
+	
 	for( int i = 0; i < 4 && pKeyPush->uiPort < 0x100; i++ )
 	{
 		WCEKeyIF::KeyDown( pKeyPush->uiPort, pKeyPush->uiSwitchBit );
@@ -195,7 +345,8 @@ HpcKeyIF::KEYPUSHINFO HpcKeyIF::m_aaKeyPushInfo[][4] = {
 /*	VK_CONTROL		0x11 */	{ { 0x08, BIT7 }, ENDP },
 /*	VK_MENU			0x12 */	{ { 0x08, BIT4 }, ENDP },
 /*	VK_PAUSE		0x13 */	{ { 0x09, BIT0 }, ENDP },
-/*	VK_CAPITAL		0x14 */	{ { 0x0a, BIT7 }, ENDP },
+///*	VK_CAPITAL		0x14 */	{ { 0x0a, BIT7 }, ENDP },
+/*	VK_CAPITAL->SFT	0x14 */	{ { 0x08, BIT6 }, { 0x0e, BIT2 }, ENDP },
 /*	VK_KANA			0x15 */	{ { 0x08, BIT5 }, ENDP },
 /*					0x16 */	{ ENDP },
 /*	VK_JUNJA		0x17 */	{ ENDP },
@@ -299,12 +450,17 @@ HpcKeyIF::KEYPUSHINFO HpcKeyIF::m_aaKeyPushInfo[][4] = {
 /*	VK_F4			0x73 */	{ { 0x09, BIT4 }, ENDP },
 /*	VK_F5			0x74 */	{ { 0x09, BIT5 }, ENDP },
 /*	VK_F6			0x75 */	{ { 0x09, BIT1 }, ENDP },
-/*	VK_F7			0x76 */	{ { 0x09, BIT2 }, ENDP },
-/*	VK_F8			0x77 */	{ { 0x09, BIT3 }, ENDP },
-/*	VK_F9			0x78 */	{ { 0x09, BIT4 }, ENDP },
-/*	VK_F10			0x79 */	{ { 0x09, BIT5 }, ENDP },
+///*	VK_F7			0x76 */	{ { 0x09, BIT2 }, ENDP },
+/*	VK_F7->F5		0x76 */	{ { 0x09, BIT5 }, ENDP },
+///*	VK_F8			0x77 */	{ { 0x09, BIT3 }, ENDP },
+/*	VK_F8->TAB		0x77 */	{ { 0x0a, BIT0 }, ENDP },
+///*	VK_F9			0x78 */	{ { 0x09, BIT4 }, ENDP },
+/*	VK_F9->CTRL		0x78 */	{ { 0x08, BIT7 }, ENDP },
+///*	VK_F10			0x79 */	{ { 0x09, BIT5 }, ENDP },
+/*	VK_F10->CAPS	0x79 */	{ { 0x0a, BIT7 }, ENDP },
 /*	VK_F11			0x7A */	{ ENDP },
-/*	VK_F12			0x7B */	{ ENDP },
+///*	VK_F12			0x7B */	{ ENDP },
+/*	VK_F12->KANA	0x7B */	{ { 0x08, BIT5 }, ENDP },		//KANA
 /*					0x7C */	{ ENDP },
 /*					0x7D */	{ ENDP },
 /*					0x7E */	{ ENDP },
@@ -449,3 +605,28 @@ HpcKeyIF::KEYPUSHINFO HpcKeyIF::m_aaKeyPushInfo[][4] = {
 
 };
 
+// --- ファイルの末尾に追加: タイマー処理 ---
+void HpcKeyIF::OnTimer()
+{
+	// ★修正: PC-88が「カナモード」かつ「ローマ字入力ON」の時だけ出力駆動
+	if ((m_dwLockKeyFlag & HPCKEYIF_LOCK_KANA) && m_bUseRomaji) {
+		romaji_output((void*)this);
+	}
+}
+
+/*---------------------------------------------------------------------------
+		ローマ字入力モジュールからのコールバックブリッジ
+---------------------------------------------------------------------------*/
+extern "C" void RomajiHook_KeyDown(void* pKeyIF, int port, int bit)
+{
+	if (pKeyIF) {
+		((PC8801::WCEKeyIF*)pKeyIF)->KeyDown(port, bit);
+	}
+}
+
+extern "C" void RomajiHook_KeyUp(void* pKeyIF, int port, int bit)
+{
+	if (pKeyIF) {
+		((PC8801::WCEKeyIF*)pKeyIF)->KeyUp(port, bit);
+	}
+}

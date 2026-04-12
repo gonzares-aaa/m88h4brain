@@ -7,6 +7,8 @@
 ===========================================================================*/
 
 #include "m88h.h"
+#include "romaji.h"
+#include "quicksave.h"
 
 static void GetFileNameTitle(char* title, const char* name);
 static bool OpenDiskImage( HWND hWndParent, HINSTANCE hInstance,
@@ -27,6 +29,11 @@ HpcUI::HpcUI( HINSTANCE hInst )
 
 	m_hWndCB = NULL;
 	m_iPrevBasicModeMenu = 0;
+
+	waveOutGetVolume(NULL, &mute_before_vol);	// Mute前のボリューム値を退避
+	waveOutSetVolume(NULL, 0);					// ボリュームを0にする
+	isMute = true;
+
 }
 
 
@@ -51,6 +58,9 @@ bool HpcUI::InitM88Sub()
 	{
 		return false;
 	}
+
+	// ローマ字テーブルの初期化
+	romaji_init();
 
 	m_pDiskImgMgr = new CDiskImageManager( GetDiskManager() );
 
@@ -148,6 +158,24 @@ HWND HpcUI::CreateMainWindow( void )
 	return hWnd;
 }
 
+/*---------------------------------------------------------------------------
+		ローマ字入力用タイマーの自動管理
+---------------------------------------------------------------------------*/
+static void UpdateRomajiTimer(HWND hWnd, PC8801::HpcKeyIF* pKeyIF)
+{
+	static bool s_bTimerRunning = false;
+	
+	// ローマ字入力ON かつ カナキーがロックされている時だけタイマーを回す
+	bool bShouldRun = pKeyIF->IsRomajiMode() && pKeyIF->IsKanaLocked();
+	
+	if (bShouldRun && !s_bTimerRunning) {
+		::SetTimer(hWnd, 1, 16, NULL);
+		s_bTimerRunning = true;
+	} else if (!bShouldRun && s_bTimerRunning) {
+		::KillTimer(hWnd, 1);
+		s_bTimerRunning = false;
+	}
+}
 
 /*---------------------------------------------------------------------------
 		ウインドウ関数
@@ -169,6 +197,13 @@ static int iDownKeyCode = 0xff;
 		}
 		break;
 
+		// ★追加: タイマーを受け取って HpcKeyIF に流す
+		case WM_TIMER:
+		{
+			m_keyif.OnTimer();
+			return 0;
+		}
+		break;
 
 		case WM_COMMAND:
 		{
@@ -180,6 +215,10 @@ static int iDownKeyCode = 0xff;
 		case WM_KEYUP:
 		{
 			m_keyif.KeyUp( (uint)wParam, (uint32)lParam );
+			//  カナモード切替キー(0x7b)が離された時だけタイマー判定を行う！
+			if (wParam == 0x7b) {
+				UpdateRomajiTimer(hWnd, &m_keyif);
+			}
 			return 0;
 		}
 		break;
@@ -216,6 +255,8 @@ static int iDownKeyCode = 0xff;
 
 		case WM_DESTROY:
 		{
+			// ウインドウが閉じられるときにタイマーを止める
+			::KillTimer( hWnd, 1 );
 			::PostQuitMessage( 0 );
 			return 0;
 		}
@@ -278,6 +319,36 @@ HMENU hMenu = CommandBar_GetMenu( m_hWndCB, 0 );
 			}
 		}
 		break;
+
+		case IDM_MUTE:	// Mute処理
+		{
+			if (!isMute) {	// MuteされていないのでMuteにする
+				waveOutGetVolume(NULL, &mute_before_vol);	// Mute前のボリューム値を退避
+				waveOutSetVolume(NULL, 0);					// ボリュームを0にする
+				isMute = true;
+				CheckBasicModeRadioItem();
+			} else {		// Mute前に戻す
+				waveOutSetVolume(NULL, mute_before_vol);	// 退避していたボリューム値に設定
+				isMute = false;
+				CheckBasicModeRadioItem();
+			}
+			CommandBar_DrawMenuBar( m_hWndCB, 0 );
+		}
+		break;
+
+		// Romaji inputが選択された時の処理
+		case IDM_ROMAJI:
+		{
+			// ローマ字モードのフラグを反転させる
+			m_keyif.ToggleRomajiMode();
+			// メニューのチェックマーク状態を更新
+			CheckBasicModeRadioItem();
+			// メニューバーを再描画
+			CommandBar_DrawMenuBar( m_hWndCB, 0 );
+		}
+		break;
+		
+		
 		case IDM_NMODE:
 		{
 			GetM88Config()->basicmode = Config::N80;
@@ -358,7 +429,7 @@ HMENU hMenu = CommandBar_GetMenu( m_hWndCB, 0 );
 		case IDM_DRIVE_1_IC:
 		{
 		WCHAR szBuf[MAX_PATH + 1];
-
+			szBuf[0] = 0;
 			if( OpenDiskImage( hWnd, GetInstance(), szBuf, MAX_PATH ) )
 			{
 			LPSTR szName = WideToMulti( szBuf );
@@ -380,7 +451,7 @@ HMENU hMenu = CommandBar_GetMenu( m_hWndCB, 0 );
 		case IDM_DRIVE_2_IC:
 		{
 		WCHAR szBuf[MAX_PATH + 1];
-
+			szBuf[0] = 0;
 			if( OpenDiskImage( hWnd, GetInstance(), szBuf, MAX_PATH ) )
 			{
 			LPSTR szName = WideToMulti( szBuf );
@@ -415,6 +486,54 @@ HMENU hMenu = CommandBar_GetMenu( m_hWndCB, 0 );
 			CDialog::Create( hWnd, &about );
 		}
 		break;
+
+
+		// === どこでもセーブ (Quick Save) ===
+        case IDM_QUICKSAVE_SLOT1: quicksave_save(0, GetCore(), GetCore()->GetDiskManager()); break;
+        case IDM_QUICKSAVE_SLOT2: quicksave_save(1, GetCore(), GetCore()->GetDiskManager()); break;
+        case IDM_QUICKSAVE_SLOT3: quicksave_save(2, GetCore(), GetCore()->GetDiskManager()); break;
+        case IDM_QUICKSAVE_SLOT4: quicksave_save(3, GetCore(), GetCore()->GetDiskManager()); break;
+        case IDM_QUICKSAVE_SLOT5: quicksave_save(4, GetCore(), GetCore()->GetDiskManager()); break;
+
+        // === どこでもロード (Quick Load) ===
+        case IDM_QUICKLOAD_SLOT1: 
+        case IDM_QUICKLOAD_SLOT2: 
+        case IDM_QUICKLOAD_SLOT3: 
+        case IDM_QUICKLOAD_SLOT4: 
+        case IDM_QUICKLOAD_SLOT5: 
+        {
+            // 1. 選択されたスロット番号を判定
+            int slot = LOWORD(wParam) - IDM_QUICKLOAD_SLOT1;
+            
+            // 2. コアにステートデータをロードさせる
+            quicksave_load(slot, GetCore(), GetCore()->GetDiskManager());
+            
+            // 3. ロードされたディスク状態を UI (m_pDiskImgMgr) に強制同期させる
+            for(int i = 0; i < 2; i++) {
+                const char* name = GetCore()->GetDiskManager()->GetDiskName(i);
+                int idx = GetCore()->GetDiskManager()->GetCurrentDisk(i);
+                
+                if (name && name[0] != '\0' && idx >= 0) {
+                    // UIクラスに正しいファイルパスとインデックスを認識させる
+					bool ro = GetCore()->GetDiskManager()->IsReadOnly(i);
+					
+					// ポインタの参照切れによる消失バグを防ぐため、
+                    // 文字列を安全なローカル変数にコピーしてから OpenDiskImage に渡す！
+                    char nameCopy[MAX_PATH];
+                    strncpy(nameCopy, name, MAX_PATH);
+                    nameCopy[MAX_PATH - 1] = '\0';
+					m_pDiskImgMgr->OpenDiskImage(i, nameCopy, ro, idx, false);
+                }
+                
+                // メニューの「Drive 1 - [ファイル名]」の表示を直ちに更新する
+                CreateDiskMenu(i);
+            }
+			// UI更新の巻き添えで壊れてしまったコアの状態を直すため、
+            // もう一度だけステートを上書きロードして、ハードウェア状態を完璧に確定させる！
+            quicksave_load(slot, GetCore(), GetCore()->GetDiskManager());
+        }
+        break;
+
 	}
 
 	m_pDraw->RequestPaint();
@@ -468,6 +587,19 @@ int iMenuItem = 0;
 	}
 
 	m_iPrevBasicModeMenu = iMenuItem;
+	
+	if (isMute) {
+		::CheckMenuItem( hMenu, IDM_MUTE, MF_CHECKED );
+	} else {
+		::CheckMenuItem( hMenu, IDM_MUTE, MF_UNCHECKED );
+	}
+
+	// ローマ字モードのON/OFFに応じてチェックマークを更新
+	if (m_keyif.IsRomajiMode()) {
+		::CheckMenuItem( hMenu, IDM_ROMAJI, MF_CHECKED );
+	} else {
+		::CheckMenuItem( hMenu, IDM_ROMAJI, MF_UNCHECKED );
+	}
 }
 
 
@@ -581,7 +713,6 @@ static void GetFileNameTitle(char* title, const char* name)
 	}
 }
 
-
 /*---------------------------------------------------------------------------
 		.D88選択
 ---------------------------------------------------------------------------*/
@@ -589,26 +720,32 @@ static void GetFileNameTitle(char* title, const char* name)
 static bool OpenDiskImage( HWND hWndParent, HINSTANCE hInstance,
 									LPTSTR szRetBuf, DWORD dwBufSize )
 {
-OPENFILENAME ofn;
+    OPENFILENAME ofn;
 
-	::ZeroMemory( &ofn, sizeof(OPENFILENAME) );
-	ofn.lStructSize = sizeof(OPENFILENAME);
-	ofn.hwndOwner = hWndParent;
-	ofn.hInstance = hInstance;
-	ofn.lpstrFilter =
-			_T("D88イメージ{*.D88|*.88D|*.DAT}\0*.D88;*.88D;*.DAT\0\0");
-	ofn.lpstrFile = szRetBuf;
-	ofn.nMaxFile = dwBufSize;
-	ofn.Flags = OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
-	ofn.lpstrInitialDir = NULL;
-	ofn.lpstrDefExt = NULL;
+    // 実行ファイルのあるフォルダパスを取得する
+    WCHAR szInitDir[MAX_PATH];
+    GetModuleFileName(NULL, szInitDir, MAX_PATH);
+    WCHAR* p = wcsrchr(szInitDir, L'\\');
+    if (p) {
+        *p = L'\0'; // ファイル名部分をカットしてディレクトリパスにする
+    }
 
-	if( ::GetOpenFileName( &ofn ) )
-	{
-		return true;
-	}
+    ::ZeroMemory( &ofn, sizeof(OPENFILENAME) );
+    ofn.lStructSize = sizeof(OPENFILENAME);
+    ofn.hwndOwner = hWndParent;
+    ofn.hInstance = hInstance;
+    ofn.lpstrFilter =
+            _T("D88イメージ{*.D88|*.88D|*.DAT}\0*.D88;*.88D;*.DAT\0\0");
+    ofn.lpstrFile = szRetBuf;
+    ofn.nMaxFile = dwBufSize;
+    ofn.Flags = OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+    ofn.lpstrInitialDir = szInitDir;
+    ofn.lpstrDefExt = NULL;
 
-	return false;
+    if( ::GetOpenFileName( &ofn ) )
+    {
+        return true;
+    }
+
+    return false;
 }
-
-

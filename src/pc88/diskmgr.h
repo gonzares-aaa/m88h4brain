@@ -61,6 +61,7 @@ public:
 	bool IsReadOnly() { return readonly; }
 	uint IsOpen() { return ref > 0; }
 	bool AddDisk(const char* title, uint type);
+	const char* GetDiskName() { return diskname; }
 
 private:
 	struct DiskInfo
@@ -112,6 +113,15 @@ public:
 
 	PC8801::FDU* GetFDU(int dr) { return dr < max_drives ? &drive[dr].fdu : 0; }
 
+	const char* GetDiskName(uint dr) {
+		if (dr < max_drives && drive[dr].holder) return drive[dr].holder->GetDiskName();
+		return 0;
+	}
+	bool IsReadOnly(uint dr) {
+		if (dr < max_drives && drive[dr].holder) return drive[dr].holder->IsReadOnly();
+		return false;
+	}
+	
 private:
 	struct Drive
 	{

@@ -8,6 +8,7 @@
 
 #include "m88ce.h"
 #include "strcv.h"
+#include <winnls.h>
 
 CComModule _Module;
 
@@ -40,6 +41,11 @@ int iRetCode = 0;
 		return 0;
 	}
 
+
+	// jp localization
+	SetSystemDefaultLCID(1041);
+	PostMessage(HWND_BROADCAST, WM_WININICHANGE, 0, INI_INTL);
+
 	_Module.Init( NULL, pUI->GetInstance() );
 
 	//cc.dwSize = sizeof(INITCOMMONCONTROLSEX);
@@ -63,6 +69,11 @@ int iRetCode = 0;
 
 	LPSTR szDir = WideToMulti( wszModuleName );
 	FileIO::SetCurrentDirectory( szDir );
+
+	// Add Font
+//	::MessageBox( NULL, _T(szDir), _T("M88"), MB_OK | MB_TOPMOST );
+//	AddFontResource(_T("jptahoma.ttc"));
+
 	delete[] szDir;
 
 

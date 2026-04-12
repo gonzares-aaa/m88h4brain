@@ -134,7 +134,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:THUMB
-# ADD LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /MACHINE:THUMB
+# ADD LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /out:"ARMV4IRel/AppMain.exe" /subsystem:$(CESubsystem) /MACHINE:THUMB
 
 !ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE ARMV4I) Debug"
 
@@ -7012,6 +7012,83 @@ SOURCE=..\src\wince\CThread.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\wince\dosio.cpp
+
+!IF  "$(CFG)" == "M88sig3 - Win32 (WCE emulator) Release"
+
+DEP_CPP_DOSIO=\
+	"..\src\wince\compiler.h"\
+	"..\src\wince\dosio.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE emulator) Debug"
+
+DEP_CPP_DOSIO=\
+	"..\src\wince\compiler.h"\
+	"..\src\wince\dosio.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE ARMV4I) Release"
+
+DEP_CPP_DOSIO=\
+	"..\src\wince\compiler.h"\
+	"..\src\wince\dosio.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE ARMV4I) Debug"
+
+DEP_CPP_DOSIO=\
+	"..\src\wince\compiler.h"\
+	"..\src\wince\dosio.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_DOSIO=\
+	"..\src\wince\compiler.h"\
+	"..\src\wince\dosio.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_DOSIO=\
+	"..\src\wince\compiler.h"\
+	"..\src\wince\dosio.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE ARMV4T) Release"
+
+DEP_CPP_DOSIO=\
+	"..\src\wince\compiler.h"\
+	"..\src\wince\dosio.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE ARMV4T) Debug"
+
+DEP_CPP_DOSIO=\
+	"..\src\wince\compiler.h"\
+	"..\src\wince\dosio.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE x86) Release"
+
+DEP_CPP_DOSIO=\
+	"..\src\wince\compiler.h"\
+	"..\src\wince\dosio.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE x86) Debug"
+
+DEP_CPP_DOSIO=\
+	"..\src\wince\compiler.h"\
+	"..\src\wince\dosio.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\wince\global.cpp
 
 !IF  "$(CFG)" == "M88sig3 - Win32 (WCE emulator) Release"
@@ -7867,6 +7944,7 @@ DEP_CPP_HPCKE=\
 	"..\src\wince\CThread.h"\
 	"..\src\wince\m88ce.h"\
 	"..\src\wince\m88h.h"\
+	"..\src\wince\romaji.h"\
 	"..\src\wince\strcv.h"\
 	"..\src\wince\wcesound.h"\
 	
@@ -8126,6 +8204,8 @@ DEP_CPP_HPCUI=\
 	"..\src\wince\CThread.h"\
 	"..\src\wince\m88ce.h"\
 	"..\src\wince\m88h.h"\
+	"..\src\wince\quicksave.h"\
+	"..\src\wince\romaji.h"\
 	"..\src\wince\strcv.h"\
 	"..\src\wince\wcesound.h"\
 	
@@ -8313,7 +8393,6 @@ DEP_CPP_HPCVG=\
 	"..\src\wince\CThread.h"\
 	"..\src\wince\m88ce.h"\
 	"..\src\wince\m88h.h"\
-	"..\src\wince\m88sig3.h"\
 	"..\src\wince\wcesound.h"\
 	
 NODEP_CPP_HPCVG=\
@@ -8323,6 +8402,7 @@ NODEP_CPP_HPCVG=\
 	"..\src\wince\diskmgr.h"\
 	"..\src\wince\draw.h"\
 	"..\src\wince\headers.h"\
+	"..\src\wince\m88sig3.h"\
 	"..\src\wince\opnif.h"\
 	"..\src\wince\pc88.h"\
 	"..\src\wince\pc88\sound.h"\
@@ -8336,7 +8416,6 @@ DEP_CPP_HPCVG=\
 	"..\src\wince\CThread.h"\
 	"..\src\wince\m88ce.h"\
 	"..\src\wince\m88h.h"\
-	"..\src\wince\m88sig3.h"\
 	"..\src\wince\wcesound.h"\
 	
 NODEP_CPP_HPCVG=\
@@ -8346,6 +8425,7 @@ NODEP_CPP_HPCVG=\
 	"..\src\wince\diskmgr.h"\
 	"..\src\wince\draw.h"\
 	"..\src\wince\headers.h"\
+	"..\src\wince\m88sig3.h"\
 	"..\src\wince\opnif.h"\
 	"..\src\wince\pc88.h"\
 	"..\src\wince\pc88\sound.h"\
@@ -8387,7 +8467,6 @@ DEP_CPP_HPCVG=\
 	"..\src\wince\CThread.h"\
 	"..\src\wince\m88ce.h"\
 	"..\src\wince\m88h.h"\
-	"..\src\wince\m88sig3.h"\
 	"..\src\wince\strcv.h"\
 	"..\src\wince\wcesound.h"\
 	
@@ -8426,9 +8505,11 @@ DEP_CPP_HPCVG=\
 	"..\src\wince\CThread.h"\
 	"..\src\wince\m88ce.h"\
 	"..\src\wince\m88h.h"\
-	"..\src\wince\m88sig3.h"\
 	"..\src\wince\strcv.h"\
 	"..\src\wince\wcesound.h"\
+	
+NODEP_CPP_HPCVG=\
+	"..\src\wince\m88sig3.h"\
 	
 
 !ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE ARMV4) Release"
@@ -8437,7 +8518,6 @@ DEP_CPP_HPCVG=\
 	"..\src\wince\CThread.h"\
 	"..\src\wince\m88ce.h"\
 	"..\src\wince\m88h.h"\
-	"..\src\wince\m88sig3.h"\
 	"..\src\wince\wcesound.h"\
 	
 NODEP_CPP_HPCVG=\
@@ -8447,6 +8527,7 @@ NODEP_CPP_HPCVG=\
 	"..\src\wince\diskmgr.h"\
 	"..\src\wince\draw.h"\
 	"..\src\wince\headers.h"\
+	"..\src\wince\m88sig3.h"\
 	"..\src\wince\opnif.h"\
 	"..\src\wince\pc88.h"\
 	"..\src\wince\pc88\sound.h"\
@@ -8460,7 +8541,6 @@ DEP_CPP_HPCVG=\
 	"..\src\wince\CThread.h"\
 	"..\src\wince\m88ce.h"\
 	"..\src\wince\m88h.h"\
-	"..\src\wince\m88sig3.h"\
 	"..\src\wince\wcesound.h"\
 	
 NODEP_CPP_HPCVG=\
@@ -8470,6 +8550,7 @@ NODEP_CPP_HPCVG=\
 	"..\src\wince\diskmgr.h"\
 	"..\src\wince\draw.h"\
 	"..\src\wince\headers.h"\
+	"..\src\wince\m88sig3.h"\
 	"..\src\wince\opnif.h"\
 	"..\src\wince\pc88.h"\
 	"..\src\wince\pc88\sound.h"\
@@ -8483,7 +8564,6 @@ DEP_CPP_HPCVG=\
 	"..\src\wince\CThread.h"\
 	"..\src\wince\m88ce.h"\
 	"..\src\wince\m88h.h"\
-	"..\src\wince\m88sig3.h"\
 	"..\src\wince\wcesound.h"\
 	
 NODEP_CPP_HPCVG=\
@@ -8493,6 +8573,7 @@ NODEP_CPP_HPCVG=\
 	"..\src\wince\diskmgr.h"\
 	"..\src\wince\draw.h"\
 	"..\src\wince\headers.h"\
+	"..\src\wince\m88sig3.h"\
 	"..\src\wince\opnif.h"\
 	"..\src\wince\pc88.h"\
 	"..\src\wince\pc88\sound.h"\
@@ -8506,7 +8587,6 @@ DEP_CPP_HPCVG=\
 	"..\src\wince\CThread.h"\
 	"..\src\wince\m88ce.h"\
 	"..\src\wince\m88h.h"\
-	"..\src\wince\m88sig3.h"\
 	"..\src\wince\wcesound.h"\
 	
 NODEP_CPP_HPCVG=\
@@ -8516,6 +8596,7 @@ NODEP_CPP_HPCVG=\
 	"..\src\wince\diskmgr.h"\
 	"..\src\wince\draw.h"\
 	"..\src\wince\headers.h"\
+	"..\src\wince\m88sig3.h"\
 	"..\src\wince\opnif.h"\
 	"..\src\wince\pc88.h"\
 	"..\src\wince\pc88\sound.h"\
@@ -8529,7 +8610,6 @@ DEP_CPP_HPCVG=\
 	"..\src\wince\CThread.h"\
 	"..\src\wince\m88ce.h"\
 	"..\src\wince\m88h.h"\
-	"..\src\wince\m88sig3.h"\
 	"..\src\wince\wcesound.h"\
 	
 NODEP_CPP_HPCVG=\
@@ -8539,6 +8619,7 @@ NODEP_CPP_HPCVG=\
 	"..\src\wince\diskmgr.h"\
 	"..\src\wince\draw.h"\
 	"..\src\wince\headers.h"\
+	"..\src\wince\m88sig3.h"\
 	"..\src\wince\opnif.h"\
 	"..\src\wince\pc88.h"\
 	"..\src\wince\pc88\sound.h"\
@@ -8552,7 +8633,6 @@ DEP_CPP_HPCVG=\
 	"..\src\wince\CThread.h"\
 	"..\src\wince\m88ce.h"\
 	"..\src\wince\m88h.h"\
-	"..\src\wince\m88sig3.h"\
 	"..\src\wince\wcesound.h"\
 	
 NODEP_CPP_HPCVG=\
@@ -8562,6 +8642,7 @@ NODEP_CPP_HPCVG=\
 	"..\src\wince\diskmgr.h"\
 	"..\src\wince\draw.h"\
 	"..\src\wince\headers.h"\
+	"..\src\wince\m88sig3.h"\
 	"..\src\wince\opnif.h"\
 	"..\src\wince\pc88.h"\
 	"..\src\wince\pc88\sound.h"\
@@ -9091,6 +9172,513 @@ NODEP_CPP_MAIN_W=\
 	"..\src\wince\pc88\sound.h"\
 	"..\src\wince\resource.h"\
 	"..\src\wince\sounddrv.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\wince\quicksave.cpp
+
+!IF  "$(CFG)" == "M88sig3 - Win32 (WCE emulator) Release"
+
+DEP_CPP_QUICK=\
+	"..\src\wince\compiler.h"\
+	"..\src\wince\dosio.h"\
+	"..\src\wince\quicksave.h"\
+	"..\src\wince\statsave.h"\
+	
+NODEP_CPP_QUICK=\
+	"..\src\wince\headers.h"\
+	"..\src\wince\pc88.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE emulator) Debug"
+
+DEP_CPP_QUICK=\
+	"..\src\wince\compiler.h"\
+	"..\src\wince\dosio.h"\
+	"..\src\wince\quicksave.h"\
+	"..\src\wince\statsave.h"\
+	
+NODEP_CPP_QUICK=\
+	"..\src\wince\headers.h"\
+	"..\src\wince\pc88.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE ARMV4I) Release"
+
+DEP_CPP_QUICK=\
+	"..\src\common\device.h"\
+	"..\src\common\draw.h"\
+	"..\src\common\memmgr.h"\
+	"..\src\common\misc.h"\
+	"..\src\common\schedule.h"\
+	"..\src\devices\Z80.h"\
+	"..\src\devices\Z80_x86.h"\
+	"..\src\devices\Z80c.h"\
+	"..\src\devices\Z80Debug.h"\
+	"..\src\devices\Z80diag.h"\
+	"..\src\devices\Z80Test.h"\
+	"..\src\if\ifcommon.h"\
+	"..\src\pc88\pc88.h"\
+	"..\src\win32\headers.h"\
+	"..\src\wince\compiler.h"\
+	"..\src\wince\dosio.h"\
+	"..\src\wince\quicksave.h"\
+	"..\src\wince\statsave.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE ARMV4I) Debug"
+
+DEP_CPP_QUICK=\
+	"..\src\common\device.h"\
+	"..\src\common\draw.h"\
+	"..\src\common\memmgr.h"\
+	"..\src\common\misc.h"\
+	"..\src\common\schedule.h"\
+	"..\src\devices\Z80.h"\
+	"..\src\devices\Z80_x86.h"\
+	"..\src\devices\Z80c.h"\
+	"..\src\devices\Z80Debug.h"\
+	"..\src\devices\Z80diag.h"\
+	"..\src\devices\Z80Test.h"\
+	"..\src\if\ifcommon.h"\
+	"..\src\pc88\pc88.h"\
+	"..\src\win32\headers.h"\
+	"..\src\wince\compiler.h"\
+	"..\src\wince\dosio.h"\
+	"..\src\wince\quicksave.h"\
+	"..\src\wince\statsave.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_QUICK=\
+	"..\src\wince\compiler.h"\
+	"..\src\wince\dosio.h"\
+	"..\src\wince\quicksave.h"\
+	"..\src\wince\statsave.h"\
+	
+NODEP_CPP_QUICK=\
+	"..\src\wince\headers.h"\
+	"..\src\wince\pc88.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_QUICK=\
+	"..\src\wince\compiler.h"\
+	"..\src\wince\dosio.h"\
+	"..\src\wince\quicksave.h"\
+	"..\src\wince\statsave.h"\
+	
+NODEP_CPP_QUICK=\
+	"..\src\wince\headers.h"\
+	"..\src\wince\pc88.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE ARMV4T) Release"
+
+DEP_CPP_QUICK=\
+	"..\src\wince\compiler.h"\
+	"..\src\wince\dosio.h"\
+	"..\src\wince\quicksave.h"\
+	"..\src\wince\statsave.h"\
+	
+NODEP_CPP_QUICK=\
+	"..\src\wince\headers.h"\
+	"..\src\wince\pc88.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE ARMV4T) Debug"
+
+DEP_CPP_QUICK=\
+	"..\src\wince\compiler.h"\
+	"..\src\wince\dosio.h"\
+	"..\src\wince\quicksave.h"\
+	"..\src\wince\statsave.h"\
+	
+NODEP_CPP_QUICK=\
+	"..\src\wince\headers.h"\
+	"..\src\wince\pc88.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE x86) Release"
+
+DEP_CPP_QUICK=\
+	"..\src\wince\compiler.h"\
+	"..\src\wince\dosio.h"\
+	"..\src\wince\quicksave.h"\
+	"..\src\wince\statsave.h"\
+	
+NODEP_CPP_QUICK=\
+	"..\src\wince\headers.h"\
+	"..\src\wince\pc88.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE x86) Debug"
+
+DEP_CPP_QUICK=\
+	"..\src\wince\compiler.h"\
+	"..\src\wince\dosio.h"\
+	"..\src\wince\quicksave.h"\
+	"..\src\wince\statsave.h"\
+	
+NODEP_CPP_QUICK=\
+	"..\src\wince\headers.h"\
+	"..\src\wince\pc88.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\wince\romaji.cpp
+
+!IF  "$(CFG)" == "M88sig3 - Win32 (WCE emulator) Release"
+
+DEP_CPP_ROMAJ=\
+	"..\src\wince\romaji-table.h"\
+	"..\src\wince\romaji.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE emulator) Debug"
+
+DEP_CPP_ROMAJ=\
+	"..\src\wince\romaji-table.h"\
+	"..\src\wince\romaji.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE ARMV4I) Release"
+
+DEP_CPP_ROMAJ=\
+	"..\src\wince\romaji-table.h"\
+	"..\src\wince\romaji.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE ARMV4I) Debug"
+
+DEP_CPP_ROMAJ=\
+	"..\src\wince\romaji-table.h"\
+	"..\src\wince\romaji.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_ROMAJ=\
+	"..\src\wince\romaji-table.h"\
+	"..\src\wince\romaji.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_ROMAJ=\
+	"..\src\wince\romaji-table.h"\
+	"..\src\wince\romaji.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE ARMV4T) Release"
+
+DEP_CPP_ROMAJ=\
+	"..\src\wince\romaji-table.h"\
+	"..\src\wince\romaji.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE ARMV4T) Debug"
+
+DEP_CPP_ROMAJ=\
+	"..\src\wince\romaji-table.h"\
+	"..\src\wince\romaji.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE x86) Release"
+
+DEP_CPP_ROMAJ=\
+	"..\src\wince\romaji-table.h"\
+	"..\src\wince\romaji.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE x86) Debug"
+
+DEP_CPP_ROMAJ=\
+	"..\src\wince\romaji-table.h"\
+	"..\src\wince\romaji.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\wince\statsave.cpp
+
+!IF  "$(CFG)" == "M88sig3 - Win32 (WCE emulator) Release"
+
+DEP_CPP_STATS=\
+	"..\src\wince\compiler.h"\
+	"..\src\wince\dosio.h"\
+	"..\src\wince\statsave.h"\
+	
+NODEP_CPP_STATS=\
+	"..\src\wince\headers.h"\
+	"..\src\wince\pc88.h"\
+	"..\src\wince\pc88\beep.h"\
+	"..\src\wince\pc88\calender.h"\
+	"..\src\wince\pc88\crtc.h"\
+	"..\src\wince\pc88\fdc.h"\
+	"..\src\wince\pc88\intc.h"\
+	"..\src\wince\pc88\kanjirom.h"\
+	"..\src\wince\pc88\memory.h"\
+	"..\src\wince\pc88\opnif.h"\
+	"..\src\wince\pc88\pd8257.h"\
+	"..\src\wince\pc88\screen.h"\
+	"..\src\wince\pc88\subsys.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE emulator) Debug"
+
+DEP_CPP_STATS=\
+	"..\src\wince\compiler.h"\
+	"..\src\wince\dosio.h"\
+	"..\src\wince\statsave.h"\
+	
+NODEP_CPP_STATS=\
+	"..\src\wince\headers.h"\
+	"..\src\wince\pc88.h"\
+	"..\src\wince\pc88\beep.h"\
+	"..\src\wince\pc88\calender.h"\
+	"..\src\wince\pc88\crtc.h"\
+	"..\src\wince\pc88\fdc.h"\
+	"..\src\wince\pc88\intc.h"\
+	"..\src\wince\pc88\kanjirom.h"\
+	"..\src\wince\pc88\memory.h"\
+	"..\src\wince\pc88\opnif.h"\
+	"..\src\wince\pc88\pd8257.h"\
+	"..\src\wince\pc88\screen.h"\
+	"..\src\wince\pc88\subsys.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE ARMV4I) Release"
+
+DEP_CPP_STATS=\
+	"..\src\common\device.h"\
+	"..\src\common\draw.h"\
+	"..\src\common\memmgr.h"\
+	"..\src\common\misc.h"\
+	"..\src\common\schedule.h"\
+	"..\src\devices\fmgen.h"\
+	"..\src\devices\opna.h"\
+	"..\src\devices\psg.h"\
+	"..\src\devices\Z80.h"\
+	"..\src\devices\Z80_x86.h"\
+	"..\src\devices\Z80c.h"\
+	"..\src\devices\Z80Debug.h"\
+	"..\src\devices\Z80diag.h"\
+	"..\src\devices\Z80Test.h"\
+	"..\src\if\ifcommon.h"\
+	"..\src\if\ifpc88.h"\
+	"..\src\pc88\beep.h"\
+	"..\src\pc88\calender.h"\
+	"..\src\pc88\config.h"\
+	"..\src\pc88\crtc.h"\
+	"..\src\pc88\fdc.h"\
+	"..\src\pc88\fdu.h"\
+	"..\src\pc88\floppy.h"\
+	"..\src\pc88\intc.h"\
+	"..\src\pc88\kanjirom.h"\
+	"..\src\pc88\memory.h"\
+	"..\src\pc88\opnif.h"\
+	"..\src\pc88\pc88.h"\
+	"..\src\pc88\pd8257.h"\
+	"..\src\pc88\pio.h"\
+	"..\src\pc88\screen.h"\
+	"..\src\pc88\subsys.h"\
+	"..\src\win32\headers.h"\
+	"..\src\wince\compiler.h"\
+	"..\src\wince\dosio.h"\
+	"..\src\wince\statsave.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE ARMV4I) Debug"
+
+DEP_CPP_STATS=\
+	"..\src\common\device.h"\
+	"..\src\common\draw.h"\
+	"..\src\common\memmgr.h"\
+	"..\src\common\misc.h"\
+	"..\src\common\schedule.h"\
+	"..\src\devices\fmgen.h"\
+	"..\src\devices\opna.h"\
+	"..\src\devices\psg.h"\
+	"..\src\devices\Z80.h"\
+	"..\src\devices\Z80_x86.h"\
+	"..\src\devices\Z80c.h"\
+	"..\src\devices\Z80Debug.h"\
+	"..\src\devices\Z80diag.h"\
+	"..\src\devices\Z80Test.h"\
+	"..\src\if\ifcommon.h"\
+	"..\src\if\ifpc88.h"\
+	"..\src\pc88\beep.h"\
+	"..\src\pc88\calender.h"\
+	"..\src\pc88\config.h"\
+	"..\src\pc88\crtc.h"\
+	"..\src\pc88\fdc.h"\
+	"..\src\pc88\fdu.h"\
+	"..\src\pc88\floppy.h"\
+	"..\src\pc88\intc.h"\
+	"..\src\pc88\kanjirom.h"\
+	"..\src\pc88\memory.h"\
+	"..\src\pc88\opnif.h"\
+	"..\src\pc88\pc88.h"\
+	"..\src\pc88\pd8257.h"\
+	"..\src\pc88\pio.h"\
+	"..\src\pc88\screen.h"\
+	"..\src\pc88\subsys.h"\
+	"..\src\win32\headers.h"\
+	"..\src\wince\compiler.h"\
+	"..\src\wince\dosio.h"\
+	"..\src\wince\statsave.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_STATS=\
+	"..\src\wince\compiler.h"\
+	"..\src\wince\dosio.h"\
+	"..\src\wince\statsave.h"\
+	
+NODEP_CPP_STATS=\
+	"..\src\wince\headers.h"\
+	"..\src\wince\pc88.h"\
+	"..\src\wince\pc88\beep.h"\
+	"..\src\wince\pc88\calender.h"\
+	"..\src\wince\pc88\crtc.h"\
+	"..\src\wince\pc88\fdc.h"\
+	"..\src\wince\pc88\intc.h"\
+	"..\src\wince\pc88\kanjirom.h"\
+	"..\src\wince\pc88\memory.h"\
+	"..\src\wince\pc88\opnif.h"\
+	"..\src\wince\pc88\pd8257.h"\
+	"..\src\wince\pc88\screen.h"\
+	"..\src\wince\pc88\subsys.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_STATS=\
+	"..\src\wince\compiler.h"\
+	"..\src\wince\dosio.h"\
+	"..\src\wince\statsave.h"\
+	
+NODEP_CPP_STATS=\
+	"..\src\wince\headers.h"\
+	"..\src\wince\pc88.h"\
+	"..\src\wince\pc88\beep.h"\
+	"..\src\wince\pc88\calender.h"\
+	"..\src\wince\pc88\crtc.h"\
+	"..\src\wince\pc88\fdc.h"\
+	"..\src\wince\pc88\intc.h"\
+	"..\src\wince\pc88\kanjirom.h"\
+	"..\src\wince\pc88\memory.h"\
+	"..\src\wince\pc88\opnif.h"\
+	"..\src\wince\pc88\pd8257.h"\
+	"..\src\wince\pc88\screen.h"\
+	"..\src\wince\pc88\subsys.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE ARMV4T) Release"
+
+DEP_CPP_STATS=\
+	"..\src\wince\compiler.h"\
+	"..\src\wince\dosio.h"\
+	"..\src\wince\statsave.h"\
+	
+NODEP_CPP_STATS=\
+	"..\src\wince\headers.h"\
+	"..\src\wince\pc88.h"\
+	"..\src\wince\pc88\beep.h"\
+	"..\src\wince\pc88\calender.h"\
+	"..\src\wince\pc88\crtc.h"\
+	"..\src\wince\pc88\fdc.h"\
+	"..\src\wince\pc88\intc.h"\
+	"..\src\wince\pc88\kanjirom.h"\
+	"..\src\wince\pc88\memory.h"\
+	"..\src\wince\pc88\opnif.h"\
+	"..\src\wince\pc88\pd8257.h"\
+	"..\src\wince\pc88\screen.h"\
+	"..\src\wince\pc88\subsys.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE ARMV4T) Debug"
+
+DEP_CPP_STATS=\
+	"..\src\wince\compiler.h"\
+	"..\src\wince\dosio.h"\
+	"..\src\wince\statsave.h"\
+	
+NODEP_CPP_STATS=\
+	"..\src\wince\headers.h"\
+	"..\src\wince\pc88.h"\
+	"..\src\wince\pc88\beep.h"\
+	"..\src\wince\pc88\calender.h"\
+	"..\src\wince\pc88\crtc.h"\
+	"..\src\wince\pc88\fdc.h"\
+	"..\src\wince\pc88\intc.h"\
+	"..\src\wince\pc88\kanjirom.h"\
+	"..\src\wince\pc88\memory.h"\
+	"..\src\wince\pc88\opnif.h"\
+	"..\src\wince\pc88\pd8257.h"\
+	"..\src\wince\pc88\screen.h"\
+	"..\src\wince\pc88\subsys.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE x86) Release"
+
+DEP_CPP_STATS=\
+	"..\src\wince\compiler.h"\
+	"..\src\wince\dosio.h"\
+	"..\src\wince\statsave.h"\
+	
+NODEP_CPP_STATS=\
+	"..\src\wince\headers.h"\
+	"..\src\wince\pc88.h"\
+	"..\src\wince\pc88\beep.h"\
+	"..\src\wince\pc88\calender.h"\
+	"..\src\wince\pc88\crtc.h"\
+	"..\src\wince\pc88\fdc.h"\
+	"..\src\wince\pc88\intc.h"\
+	"..\src\wince\pc88\kanjirom.h"\
+	"..\src\wince\pc88\memory.h"\
+	"..\src\wince\pc88\opnif.h"\
+	"..\src\wince\pc88\pd8257.h"\
+	"..\src\wince\pc88\screen.h"\
+	"..\src\wince\pc88\subsys.h"\
+	
+
+!ELSEIF  "$(CFG)" == "M88sig3 - Win32 (WCE x86) Debug"
+
+DEP_CPP_STATS=\
+	"..\src\wince\compiler.h"\
+	"..\src\wince\dosio.h"\
+	"..\src\wince\statsave.h"\
+	
+NODEP_CPP_STATS=\
+	"..\src\wince\headers.h"\
+	"..\src\wince\pc88.h"\
+	"..\src\wince\pc88\beep.h"\
+	"..\src\wince\pc88\calender.h"\
+	"..\src\wince\pc88\crtc.h"\
+	"..\src\wince\pc88\fdc.h"\
+	"..\src\wince\pc88\intc.h"\
+	"..\src\wince\pc88\kanjirom.h"\
+	"..\src\wince\pc88\memory.h"\
+	"..\src\wince\pc88\opnif.h"\
+	"..\src\wince\pc88\pd8257.h"\
+	"..\src\wince\pc88\screen.h"\
+	"..\src\wince\pc88\subsys.h"\
 	
 
 !ENDIF 

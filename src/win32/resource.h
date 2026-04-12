@@ -259,13 +259,27 @@
 #define IDM_DUMPCPU2                    40207
 #define IDM_DRIVE_1_IC                  40209
 #define IDM_DRIVE_2_IC                  40210
+#define IDM_MUTE                        40211
+#define IDM_ROMAJI                      40212
+
+#define IDM_QUICKSAVE_SLOT1 40213
+#define IDM_QUICKSAVE_SLOT2 40214
+#define IDM_QUICKSAVE_SLOT3 40215
+#define IDM_QUICKSAVE_SLOT4 40216
+#define IDM_QUICKSAVE_SLOT5 40217
+
+#define IDM_QUICKLOAD_SLOT1 40218
+#define IDM_QUICKLOAD_SLOT2 40219
+#define IDM_QUICKLOAD_SLOT3 40220
+#define IDM_QUICKLOAD_SLOT4 40221
+#define IDM_QUICKLOAD_SLOT5 40222
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        141
-#define _APS_NEXT_COMMAND_VALUE         40211
+#define _APS_NEXT_COMMAND_VALUE         40223
 #define _APS_NEXT_CONTROL_VALUE         1141
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

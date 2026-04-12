@@ -140,6 +140,26 @@ BEGIN
     BEGIN
         MENUITEM "&Reset",                      IDM_RESET
         MENUITEM SEPARATOR
+		POPUP "Quick Save"
+		BEGIN
+			MENUITEM "Slot 1", IDM_QUICKSAVE_SLOT1
+			MENUITEM "Slot 2", IDM_QUICKSAVE_SLOT2
+			MENUITEM "Slot 3", IDM_QUICKSAVE_SLOT3
+			MENUITEM "Slot 4", IDM_QUICKSAVE_SLOT4
+			MENUITEM "Slot 5", IDM_QUICKSAVE_SLOT5
+		END
+		POPUP "Quick Load"
+		BEGIN
+			MENUITEM "Slot 1", IDM_QUICKLOAD_SLOT1
+			MENUITEM "Slot 2", IDM_QUICKLOAD_SLOT2
+			MENUITEM "Slot 3", IDM_QUICKLOAD_SLOT3
+			MENUITEM "Slot 4", IDM_QUICKLOAD_SLOT4
+			MENUITEM "Slot 5", IDM_QUICKLOAD_SLOT5
+		END
+        MENUITEM SEPARATOR
+        MENUITEM "Mute"                         IDM_MUTE
+        MENUITEM "Romaji input",                IDM_ROMAJI
+        MENUITEM SEPARATOR
         MENUITEM "N88-V&1(S) mode",             IDM_N88V1
         MENUITEM "N88-V1(&H) mode",             IDM_N88V1H
         MENUITEM "N88-V&2 mode",                IDM_N88V2

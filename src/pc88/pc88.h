@@ -105,6 +105,16 @@ public:
 	bool SaveShapshot(const char* filename);
 	bool LoadShapshot(const char* filename);
 
+	PC8801::CRTC*	GetCRTC() { return crtc; }
+	PC8801::INTC*	GetINTC() { return intc; }
+	PC8801::FDC*	GetFDC() { return fdc; }
+	PC8801::SubSystem* GetSubSys() { return subsys; }
+	PC8801::Screen*	GetScreen() { return scrn; }
+	PC8801::Calender* GetCalender() { return caln; }
+	PC8801::KanjiROM* GetKanji1() { return knj1; }
+	PC8801::KanjiROM* GetKanji2() { return knj2; }
+	DiskManager* GetDiskManager() { return diskmgr; }
+
 protected:
 	void SetUpdateMode(bool syncfromoutside);
 	void Update();

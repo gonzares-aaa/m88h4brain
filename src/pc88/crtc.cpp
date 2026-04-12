@@ -243,7 +243,8 @@ uint CRTC::Command(bool a0, uint data)
 		{
 		case 0:	
 			status = 0;		// 1
-			attr = 0;
+//			attr = 0;
+			attr = 7 << 5;	// Changed 2024/5/6
 			mode |= clear;
 			pcount[1] = 0;
 			break;
