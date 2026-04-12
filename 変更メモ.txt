@@ -1,0 +1,132 @@
+
+---------------------------------------
+M88 original からの変更点
+---------------------------------------
+
+▼strcv.cpp / strcv.h（新規追加）
+
+・Win32 APIのアクセス用に Unicode 文字列とマルチバイト文字列との相互変換用
+　関数を追加。
+
+
+▼common/lz77e.cpp
+
+・C++ 例外を使っている部分を構造化例外に直した。正しく動作するかは不明。(^^;
+
+
+▼devices/fmgen.cpp
+
+#define FM_USE_X86_CODE を外した。
+
+
+▼devices/z80c.cpp
+
+・MIPSってアライメントにうるさいみたいね....
+　直接16bitでとろうとする例外が発生するので、8bitずつ取得するように変更。
+
+196行目「fetch16」メソッド
+530行目「write16」メソッド
+
+
+▼pc88/calender.h / pc88/calender.cpp
+
+・time.h 関係を Win32 ネイティブに変更。具体的には
+	time_t → FILETIME
+	struct tm → SYSTEMTIME
+　とし、関係のある操作を Win32API に変更。Calendar::diff, Calendar::Status::t
+　は time_t から FILETIME に変更。
+
+・GetLocalFileTime 関数を追加（FILETIME 形式で現在時刻の取得をする）。
+
+
+▼pc88/diskmgr.cpp
+
+・177行目、strnicmp を _strnicmp に変更。
+・では PocketPC ではいいけど HandheldPC 2.11 では通らない。自力修正。
+・けど HandheldPC2000 なら問題ないので _strnicmp で。
+
+
+▼pc88/sound.cpp
+
+・221行付近、Sound::Update メソッド内の MulDiv を __int64 を使った計算に
+　変更。
+
+
+▼win32/headers.h
+
+・以下のヘッダファイルを外した。
+	ddraw.h
+	dsound.h
+	process.h
+	time.h
+
+・_WIN32_IEの定数を0x200から0x300に変更（ListViewの拡張スタイルを使うため）。
+
+
+▼win32/file.cpp
+
+・FileIO クラスの各内部処理を Unicode 化。
+
+
+▼win32/file.h
+
+・FileFinder クラスの内部処理を Unicode 化した。
+　（free の前にポインタの NULL チェックをしてないけど「ライブラリ側でして
+　　いるであろう」と信じています(^^;）
+
+
+▼win32/status.h
+
+・_status.h にリネームして外した。独自の status.h を wince 下で。
+
+
+▼win32/types.h
+
+・#define USE_Z80_X86 を外した。
+・#define ALLOWBOUNDARYACCESS を外した（Z80C.cpp アライメント問題）。
+
+
+▼win32/soundwo.cpp
+
+・76行目付近、スレッドの生成を _beginthreadex から CreateThread に変更。
+
+
+▼その他
+
+・ASSERT.H を VC++6 の include から持ってきた。debug 向けのダミー実装が
+　必要になると思われる。
+
+・Z80Debug.h, Z80Debug.cpp, Z80Test.h, Z80Test.cpp をプロジェクトから外した。
+　デバッグ、テスト用の Z80 モジュールらしく、不用と判断。
+
+・D:\Windows CE Tools\wce300\MS Pocket PC\includeの'commctrl.h'のうち、以下の
+　ものを注釈にして外した。
+
+1575行付近
+//WINCOMMCTRLAPI BOOL WINAPI CommandBands_AddBands(HWND hwndCmdBands,  
+//                                                 HINSTANCE hinst,
+//                                                 UINT cBands, 
+//                                                 LPREBARBANDINFO prbbi);
+
+1580行付近
+//WINCOMMCTRLAPI BOOL WINAPI CommandBands_AddAdornments(HWND hwndCmdBands, 
+//                                                      HINSTANCE hinst, 
+//                                                      DWORD dwFlags, 
+//                                                      LPREBARBANDINFO prbbi);
+
+　コンパイルが通らないためだけど、原因不明。commctrl は使うから外せないし....
+
+
+・win32 ディレクトリの winsound.cpp / winsound.h を wince にコピーして、
+　ファイル名を wcesound.cpp / wcesound.h とした。また、内容を Windows CE 向け
+　に直した。
+
+
+---------------------------------------
+未修正、未実装（メモ）
+---------------------------------------
+
+▼その他
+
+・assert.h の実装。(済)
+

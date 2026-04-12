@@ -1,0 +1,13 @@
+ARMV4IRel/
+*.obj
+*.exe
+
+*.vcl
+*.vcb
+*.vco
+
+#*.dsw
+#*.dsp
+
+M88sig3/M88sig3.vcb
+M88sig3/M88sig3.vco
