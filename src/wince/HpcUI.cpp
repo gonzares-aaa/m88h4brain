@@ -487,52 +487,53 @@ HMENU hMenu = CommandBar_GetMenu( m_hWndCB, 0 );
 		}
 		break;
 
+		// --- Quick Save 処理 ---
+		case IDM_QUICKSAVE_SLOT1: case IDM_QUICKSAVE_SLOT2: case IDM_QUICKSAVE_SLOT3:
+		case IDM_QUICKSAVE_SLOT4: case IDM_QUICKSAVE_SLOT5: case IDM_QUICKSAVE_SLOT6:
+		case IDM_QUICKSAVE_SLOT7: case IDM_QUICKSAVE_SLOT8: case IDM_QUICKSAVE_SLOT9:
+		case IDM_QUICKSAVE_SLOT10: 
+		{
+			int slot = LOWORD(wParam) - IDM_QUICKSAVE_SLOT1;
+			quicksave_do_save_with_dialog(slot, hWnd, GetCore(), GetCore()->GetDiskManager());
+			break;
+		}
 
-		// === どこでもセーブ (Quick Save) ===
-        case IDM_QUICKSAVE_SLOT1: quicksave_save(0, GetCore(), GetCore()->GetDiskManager()); break;
-        case IDM_QUICKSAVE_SLOT2: quicksave_save(1, GetCore(), GetCore()->GetDiskManager()); break;
-        case IDM_QUICKSAVE_SLOT3: quicksave_save(2, GetCore(), GetCore()->GetDiskManager()); break;
-        case IDM_QUICKSAVE_SLOT4: quicksave_save(3, GetCore(), GetCore()->GetDiskManager()); break;
-        case IDM_QUICKSAVE_SLOT5: quicksave_save(4, GetCore(), GetCore()->GetDiskManager()); break;
-
-        // === どこでもロード (Quick Load) ===
-        case IDM_QUICKLOAD_SLOT1: 
-        case IDM_QUICKLOAD_SLOT2: 
-        case IDM_QUICKLOAD_SLOT3: 
-        case IDM_QUICKLOAD_SLOT4: 
-        case IDM_QUICKLOAD_SLOT5: 
-        {
-            // 1. 選択されたスロット番号を判定
-            int slot = LOWORD(wParam) - IDM_QUICKLOAD_SLOT1;
-            
-            // 2. コアにステートデータをロードさせる
-            quicksave_load(slot, GetCore(), GetCore()->GetDiskManager());
-            
-            // 3. ロードされたディスク状態を UI (m_pDiskImgMgr) に強制同期させる
-            for(int i = 0; i < 2; i++) {
-                const char* name = GetCore()->GetDiskManager()->GetDiskName(i);
-                int idx = GetCore()->GetDiskManager()->GetCurrentDisk(i);
-                
-                if (name && name[0] != '\0' && idx >= 0) {
-                    // UIクラスに正しいファイルパスとインデックスを認識させる
+		// --- Quick Load 処理 ---
+		case IDM_QUICKLOAD_SLOT1: case IDM_QUICKLOAD_SLOT2: case IDM_QUICKLOAD_SLOT3:
+		case IDM_QUICKLOAD_SLOT4: case IDM_QUICKLOAD_SLOT5: case IDM_QUICKLOAD_SLOT6:
+		case IDM_QUICKLOAD_SLOT7: case IDM_QUICKLOAD_SLOT8: case IDM_QUICKLOAD_SLOT9:
+		case IDM_QUICKLOAD_SLOT10:
+		{
+			int slot = LOWORD(wParam) - IDM_QUICKLOAD_SLOT1;
+			
+			// キャンセル（No）が選ばれた場合は、ここで処理を完全に中断する！
+			if (!quicksave_do_load_with_dialog(slot, hWnd, GetCore(), GetCore()->GetDiskManager())) {
+				break;
+			}
+			
+			// ロード成功時のみ、UIのディスク表示を同期する
+			for(int i = 0; i < 2; i++) {
+				const char* name = GetCore()->GetDiskManager()->GetDiskName(i);
+				int idx = GetCore()->GetDiskManager()->GetCurrentDisk(i);
+				
+				if (name && name[0] != '\0' && idx >= 0) {
 					bool ro = GetCore()->GetDiskManager()->IsReadOnly(i);
+					char nameCopy[MAX_PATH];
+					strncpy(nameCopy, name, MAX_PATH);
+					nameCopy[MAX_PATH - 1] = '\0';
 					
-					// ポインタの参照切れによる消失バグを防ぐため、
-                    // 文字列を安全なローカル変数にコピーしてから OpenDiskImage に渡す！
-                    char nameCopy[MAX_PATH];
-                    strncpy(nameCopy, name, MAX_PATH);
-                    nameCopy[MAX_PATH - 1] = '\0';
-					m_pDiskImgMgr->OpenDiskImage(i, nameCopy, ro, idx, false);
-                }
-                
-                // メニューの「Drive 1 - [ファイル名]」の表示を直ちに更新する
-                CreateDiskMenu(i);
-            }
-			// UI更新の巻き添えで壊れてしまったコアの状態を直すため、
-            // もう一度だけステートを上書きロードして、ハードウェア状態を完璧に確定させる！
-            quicksave_load(slot, GetCore(), GetCore()->GetDiskManager());
-        }
-        break;
+					// 最後の引数を true に変更（実際にファイルを開いてマウントする）
+					m_pDiskImgMgr->OpenDiskImage(i, nameCopy, ro, idx, true);
+				} else {
+					m_pDiskImgMgr->OpenDiskImage(i, "", false, 0, true);
+				}
+				CreateDiskMenu(i);
+			}
+			
+			// UI更新の巻き添えで壊れてしまったコアの状態を直すためダブルロード
+			quicksave_load(slot, GetCore(), GetCore()->GetDiskManager());
+			break;
+		}
 
 	}
 
