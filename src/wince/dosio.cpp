@@ -21,13 +21,15 @@ static HANDLE _CreateFile(const OEMCHAR *lpFileName,
 					DWORD dwFlagsAndAttributes,
 					HANDLE hTemplateFile) {
 
-	UINT16	ucs2[MAX_PATH];
+	UINT16* ucs2 = new UINT16[MAX_PATH];
 
 	MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, lpFileName, -1,
-													ucs2, NELEMENTS(ucs2));
-	return(CreateFile(ucs2, dwDesiredAccess, dwShareMode,
+													ucs2, MAX_PATH);
+	HANDLE ret = CreateFile(ucs2, dwDesiredAccess, dwShareMode,
 						lpSecurityAttributes, dwCreationDisposition,
-						dwFlagsAndAttributes, hTemplateFile));
+						dwFlagsAndAttributes, hTemplateFile);
+	delete[] ucs2;
+	return ret;
 }
 #elif defined(OSLANG_UTF8)
 static HANDLE _CreateFile(const OEMCHAR *lpFileName,
@@ -38,12 +40,14 @@ static HANDLE _CreateFile(const OEMCHAR *lpFileName,
 					DWORD dwFlagsAndAttributes,
 					HANDLE hTemplateFile) {
 
-	UINT16	ucs2[MAX_PATH];
+	UINT16* ucs2 = new UINT16[MAX_PATH];
 
-	ucscnv_utf8toucs2(ucs2, NELEMENTS(ucs2), lpFileName, (UINT)-1);
-	return(CreateFile(ucs2, dwDesiredAccess, dwShareMode,
+	ucscnv_utf8toucs2(ucs2, MAX_PATH, lpFileName, (UINT)-1);
+	HANDLE ret = CreateFile(ucs2, dwDesiredAccess, dwShareMode,
 						lpSecurityAttributes, dwCreationDisposition,
-						dwFlagsAndAttributes, hTemplateFile));
+						dwFlagsAndAttributes, hTemplateFile);
+	delete[] ucs2;
+	return ret;
 }
 #else
 #define	_CreateFile(a, b, c, d, e, f, g)	CreateFile(a, b, c, d, e, f, g)
@@ -168,14 +172,18 @@ BRESULT file_getdatetime(FILEH handle, DOSDATE *dosdate, DOSTIME *dostime) {
 BRESULT file_delete(const OEMCHAR *path) {
 
 #if defined(UNICODE) && defined(OSLANG_SJIS)
-	UINT16	ucs2[MAX_PATH];
+	UINT16* ucs2 = new UINT16[MAX_PATH];
 	MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, path, -1,
-													ucs2, NELEMENTS(ucs2));
-	return(DeleteFile(ucs2)?SUCCESS:FAILURE);
+													ucs2, MAX_PATH);
+	BRESULT ret = DeleteFile(ucs2)?SUCCESS:FAILURE;
+	delete[] ucs2;
+	return ret;
 #elif defined(OSLANG_UTF8)
-	UINT16	ucs2[MAX_PATH];
-	ucscnv_utf8toucs2(ucs2, NELEMENTS(ucs2), path, (UINT)-1);
-	return(DeleteFile(ucs2)?SUCCESS:FAILURE);
+	UINT16* ucs2 = new UINT16[MAX_PATH];
+	ucscnv_utf8toucs2(ucs2, MAX_PATH, path, (UINT)-1);
+	BRESULT ret = DeleteFile(ucs2)?SUCCESS:FAILURE;
+	delete[] ucs2;
+	return ret;
 #else
 	return(DeleteFile(path)?SUCCESS:FAILURE);
 #endif
@@ -184,14 +192,18 @@ BRESULT file_delete(const OEMCHAR *path) {
 SINT16 file_attr(const OEMCHAR *path) {
 
 #if defined(UNICODE) && defined(OSLANG_SJIS)
-	UINT16	ucs2[MAX_PATH];
+	UINT16* ucs2 = new UINT16[MAX_PATH];
 	MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, path, -1,
-													ucs2, NELEMENTS(ucs2));
-	return((SINT16)GetFileAttributes(ucs2));
+													ucs2, MAX_PATH);
+	SINT16 ret = (SINT16)GetFileAttributes(ucs2);
+	delete[] ucs2;
+	return ret;
 #elif defined(OSLANG_UTF8)
-	UINT16	ucs2[MAX_PATH];
-	ucscnv_utf8toucs2(ucs2, NELEMENTS(ucs2), path, (UINT)-1);
-	return((SINT16)GetFileAttributes(ucs2));
+	UINT16* ucs2 = new UINT16[MAX_PATH];
+	ucscnv_utf8toucs2(ucs2, MAX_PATH, path, (UINT)-1);
+	SINT16 ret = (SINT16)GetFileAttributes(ucs2);
+	delete[] ucs2;
+	return ret;
 #else
 	return((SINT16)GetFileAttributes(path));
 #endif
@@ -200,14 +212,18 @@ SINT16 file_attr(const OEMCHAR *path) {
 BRESULT file_dircreate(const OEMCHAR *path) {
 
 #if defined(UNICODE) && defined(OSLANG_SJIS)
-	UINT16	ucs2[MAX_PATH];
+	UINT16* ucs2 = new UINT16[MAX_PATH];
 	MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, path, -1,
-													ucs2, NELEMENTS(ucs2));
-	return(CreateDirectory(ucs2, NULL)?SUCCESS:FAILURE);
+													ucs2, MAX_PATH);
+	BRESULT ret = CreateDirectory(ucs2, NULL)?SUCCESS:FAILURE;
+	delete[] ucs2;
+	return ret;
 #elif defined(OSLANG_UTF8)
-	UINT16	ucs2[MAX_PATH];
-	ucscnv_utf8toucs2(ucs2, NELEMENTS(ucs2), path, (UINT)-1);
-	return(CreateDirectory(ucs2, NULL)?SUCCESS:FAILURE);
+	UINT16* ucs2 = new UINT16[MAX_PATH];
+	ucscnv_utf8toucs2(ucs2, MAX_PATH, path, (UINT)-1);
+	BRESULT ret = CreateDirectory(ucs2, NULL)?SUCCESS:FAILURE;
+	delete[] ucs2;
+	return ret;
 #else
 	return(CreateDirectory(path, NULL)?SUCCESS:FAILURE);
 #endif
@@ -293,27 +309,32 @@ static BRESULT setflist(WIN32_FIND_DATA *w32fd, FLINFO *fli) {
 
 FLISTH file_list1st(const OEMCHAR *dir, FLINFO *fli) {
 
-	OEMCHAR			path[MAX_PATH];
+	OEMCHAR*		path = new OEMCHAR[MAX_PATH];
 	HANDLE			hdl;
 	WIN32_FIND_DATA	w32fd;
 
-	file_cpyname(path, dir, NELEMENTS(path));
-	file_setseparator(path, NELEMENTS(path));
-	file_catname(path, str_wildcard, NELEMENTS(path));
+	file_cpyname(path, dir, MAX_PATH);
+	file_setseparator(path, MAX_PATH);
+	file_catname(path, str_wildcard, MAX_PATH);
 	TRACEOUT(("file_list1st %s", path));
 
 #if defined(UNICODE) && defined(OSLANG_SJIS)
-	UINT16	ucs2[MAX_PATH];
+	UINT16* ucs2 = new UINT16[MAX_PATH];
 	MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, path, -1,
-													ucs2, NELEMENTS(ucs2));
+													ucs2, MAX_PATH);
 	hdl = FindFirstFile(ucs2, &w32fd);
+	delete[] ucs2;
 #elif defined(OSLANG_UTF8)
-	UINT16	ucs2[MAX_PATH];
-	ucscnv_utf8toucs2(ucs2, NELEMENTS(ucs2), path, (UINT)-1);
+	UINT16* ucs2 = new UINT16[MAX_PATH];
+	ucscnv_utf8toucs2(ucs2, MAX_PATH, path, (UINT)-1);
 	hdl = FindFirstFile(ucs2, &w32fd);
+	delete[] ucs2;
 #else
 	hdl = FindFirstFile(path, &w32fd);
 #endif
+
+	delete[] path;
+
 	if (hdl != INVALID_HANDLE_VALUE) {
 		do {
 			if (setflist(&w32fd, fli) == SUCCESS) {
@@ -434,4 +455,3 @@ void file_setseparator(OEMCHAR *path, int maxlen) {
 	path[++pos] = '\\';
 	path[++pos] = '\0';
 }
-

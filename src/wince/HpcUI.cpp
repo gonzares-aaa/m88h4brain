@@ -428,7 +428,7 @@ HMENU hMenu = CommandBar_GetMenu( m_hWndCB, 0 );
 
 		case IDM_DRIVE_1_IC:
 		{
-		WCHAR szBuf[MAX_PATH + 1];
+		WCHAR* szBuf = new WCHAR[MAX_PATH + 1];
 			szBuf[0] = 0;
 			if( OpenDiskImage( hWnd, GetInstance(), szBuf, MAX_PATH ) )
 			{
@@ -437,6 +437,7 @@ HMENU hMenu = CommandBar_GetMenu( m_hWndCB, 0 );
 				m_pDiskImgMgr->OpenDiskImage( 0, szName, 0, 0, false );
 				delete[] szName;
 			}
+			delete[] szBuf;
 		}
 		break;
 
@@ -450,7 +451,7 @@ HMENU hMenu = CommandBar_GetMenu( m_hWndCB, 0 );
 
 		case IDM_DRIVE_2_IC:
 		{
-		WCHAR szBuf[MAX_PATH + 1];
+		WCHAR* szBuf = new WCHAR[MAX_PATH + 1];
 			szBuf[0] = 0;
 			if( OpenDiskImage( hWnd, GetInstance(), szBuf, MAX_PATH ) )
 			{
@@ -459,12 +460,13 @@ HMENU hMenu = CommandBar_GetMenu( m_hWndCB, 0 );
 				m_pDiskImgMgr->OpenDiskImage( 1, szName, 0, 0, false );
 				delete[] szName;
 			}
+			delete[] szBuf;
 		}
 		break;
 
 		case IDM_BOTHDRIVE:
 		{
-		WCHAR szBuf[MAX_PATH + 1];
+		WCHAR* szBuf = new WCHAR[MAX_PATH + 1];
 
 			szBuf[0] = 0;
 			if( OpenDiskImage( hWnd, GetInstance(), szBuf, MAX_PATH ) )
@@ -476,6 +478,7 @@ HMENU hMenu = CommandBar_GetMenu( m_hWndCB, 0 );
 //				CreateDiskMenu( 0 );
 //				CreateDiskMenu( 1 );
 			}
+			delete[] szBuf;
 		}
 		break;
 
@@ -518,12 +521,13 @@ HMENU hMenu = CommandBar_GetMenu( m_hWndCB, 0 );
 				
 				if (name && name[0] != '\0' && idx >= 0) {
 					bool ro = GetCore()->GetDiskManager()->IsReadOnly(i);
-					char nameCopy[MAX_PATH];
+					char* nameCopy = new char[MAX_PATH];
 					strncpy(nameCopy, name, MAX_PATH);
 					nameCopy[MAX_PATH - 1] = '\0';
 					
 					// 最後の引数を true に変更（実際にファイルを開いてマウントする）
 					m_pDiskImgMgr->OpenDiskImage(i, nameCopy, ro, idx, true);
+					delete[] nameCopy;
 				} else {
 					m_pDiskImgMgr->OpenDiskImage(i, "", false, 0, true);
 				}
@@ -613,7 +617,7 @@ bool HpcUI::CreateDiskMenu( uint drive )
 {
 HMENU hMenu = CommandBar_GetMenu( m_hWndCB, 0 );
 
-	TCHAR buf[MAX_PATH + 16];
+	TCHAR* buf = new TCHAR[MAX_PATH + 16];
 	
 	CDiskImageManager::DiskInfo& dinfo =
 									*(m_pDiskImgMgr->GetDiskInfo( drive ));
@@ -625,8 +629,10 @@ HMENU hMenu = CommandBar_GetMenu( m_hWndCB, 0 );
 	{
 		// メニュー作成
 		dinfo.hmenu = CreatePopupMenu();
-		if (!dinfo.hmenu)
+		if (!dinfo.hmenu) {
+			delete[] buf;
 			return false;
+		}
 		
 		for (int i=0; i<ndisks; i++)
 		{
@@ -666,7 +672,8 @@ HMENU hMenu = CommandBar_GetMenu( m_hWndCB, 0 );
 	}
 	else
 	{
-		char title_tmp[MAX_PATH] = "";
+		char* title_tmp = new char[MAX_PATH];
+		title_tmp[0] = '\0';
 		GetFileNameTitle( title_tmp,
 							m_pDiskImgMgr->GetDiskImageName( drive ) );
 		LPWSTR title = MultiToWide( title_tmp );
@@ -675,6 +682,7 @@ HMENU hMenu = CommandBar_GetMenu( m_hWndCB, 0 );
 		mii.hSubMenu = dinfo.hmenu;
 
 		delete[] title;
+		delete[] title_tmp;
 	}
 	SetMenuItemInfo(hMenu, drive ? IDM_DRIVE_2 : IDM_DRIVE_1, false, &mii);
 	if (hmenuprev)
@@ -684,6 +692,7 @@ HMENU hMenu = CommandBar_GetMenu( m_hWndCB, 0 );
 //		SelectDisk(drive, dinfo.currentdisk, true);
 
 	CommandBar_DrawMenuBar( m_hWndCB, 0 );
+	delete[] buf;
 	return true;
 }
 
@@ -724,7 +733,7 @@ static bool OpenDiskImage( HWND hWndParent, HINSTANCE hInstance,
     OPENFILENAME ofn;
 
     // 実行ファイルのあるフォルダパスを取得する
-    WCHAR szInitDir[MAX_PATH];
+    WCHAR* szInitDir = new WCHAR[MAX_PATH];
     GetModuleFileName(NULL, szInitDir, MAX_PATH);
     WCHAR* p = wcsrchr(szInitDir, L'\\');
     if (p) {
@@ -743,10 +752,12 @@ static bool OpenDiskImage( HWND hWndParent, HINSTANCE hInstance,
     ofn.lpstrInitialDir = szInitDir;
     ofn.lpstrDefExt = NULL;
 
+    bool bRet = false;
     if( ::GetOpenFileName( &ofn ) )
     {
-        return true;
+        bRet = true;
     }
-
-    return false;
+    
+    delete[] szInitDir;
+    return bRet;
 }

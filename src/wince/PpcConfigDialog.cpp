@@ -252,7 +252,7 @@ bool CPropDisk::Command(HWND hdlg, HWND hwctl, UINT nc, UINT id)
 
 		case IDC_DISK_DRV1CHG:
 		{
-		WCHAR szBuf[MAX_PATH + 1];
+		WCHAR* szBuf = new WCHAR[MAX_PATH + 1];
 
 			if( OpenDiskImage( hdlg, _Module.GetResourceInstance(),
 								szBuf, MAX_PATH ) )
@@ -264,11 +264,12 @@ bool CPropDisk::Command(HWND hdlg, HWND hwctl, UINT nc, UINT id)
 				delete[] szName;
 				SetDiskImageList( hdlg, 0 );
 			}
+			delete[] szBuf;
 		}
 		break;
 		case IDC_DISK_DRV2CHG:
 		{
-		WCHAR szBuf[MAX_PATH + 1];
+		WCHAR* szBuf = new WCHAR[MAX_PATH + 1];
 
 			if( OpenDiskImage( hdlg, _Module.GetResourceInstance(),
 								szBuf, MAX_PATH ) )
@@ -280,12 +281,13 @@ bool CPropDisk::Command(HWND hdlg, HWND hwctl, UINT nc, UINT id)
 				delete[] szName;
 				SetDiskImageList( hdlg, 1 );
 			}
+			delete[] szBuf;
 		}
 		break;
 
 		case IDC_DISK_CHGBOTH:
 		{
-		WCHAR szBuf[MAX_PATH + 1];
+		WCHAR* szBuf = new WCHAR[MAX_PATH + 1];
 
 			if( OpenDiskImage( hdlg, _Module.GetResourceInstance(),
 								szBuf, MAX_PATH ) )
@@ -297,6 +299,7 @@ bool CPropDisk::Command(HWND hdlg, HWND hwctl, UINT nc, UINT id)
 				SetDiskImageList( hdlg, 0 );
 				SetDiskImageList( hdlg, 1 );
 			}
+			delete[] szBuf;
 		}
 		break;
 	}
@@ -445,7 +448,7 @@ void CPropKeyMap::UpdateConfigKeyList( void )
 {
 HWND hWndList = GetDlgItem( IDC_LIST1 );
 int iLastLine = ListView_GetItemCount( hWndList );
-int aiVKList[256];
+int* aiVKList = new int[256];
 int i, n;
 
 	for( i = 0; i < iLastLine; i++ )
@@ -532,6 +535,8 @@ int i, n;
 			ListView_SetItem( hWndList, &item );
 		}
 	}
+	
+	delete[] aiVKList;
 }
 
 
@@ -614,5 +619,3 @@ void CPropAbout::InitDialog(HWND hdlg)
 						_T("‚Ö‚Ç‚¤‚¼B\r\n")
 					);
 }
-
-
